@@ -117,32 +117,33 @@ traincleaned &lt;- subset(traincleaned, select=colnames(traincleaned)[-c(1:7,NZV
 <div id="training-the-model" class="section level2">
 <h2>Training the Model</h2>
 <p>At this point we decide to prepare our data for a random forest model. Random forest does not require normalized data, so we do not apply centering and scaling. The random forest will use <strong>cross-validation</strong> by growing trees on various samples of the training data and combining their predictions.</p>
-<pre class="r"><code>modelFit &lt;- train(traincleaned$classe ~ . , method=&quot;rf&quot;, data=traincleaned)
+<pre class="r"><code>##train the model
+modelFit &lt;- train(traincleaned$classe ~ . , method=&quot;rf&quot;, data=traincleaned)
+
+#from the test set, remove the same columns as from the training set
 testcleaned &lt;- subset(subtesting, select=colnames(subtesting)[-which(na_count &gt; 0)])
 testcleaned &lt;- subset(testcleaned, select=colnames(testcleaned)[-c(1:7,NZV)])
+
+##apply the model to the cleaned test set to create predictions.
 predictions &lt;- predict(modelFit, testcleaned)</code></pre>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
 <p>The model is trained on all remaining (53) columns. The test set is given the same preparation as the training set. Predictions are done on the remaining 40% of the data set and the predictions are matched with the actual values, as shown in the confusion matrix.</p>
 <p>The result is an accuracy of 99.1 %. (The out-of-sample error rate is 0.9% )</p>
-<pre class="r"><code>modelFit &lt;- train(traincleaned$classe ~ . , method=&quot;rf&quot;, data=traincleaned)
-testcleaned &lt;- subset(subtesting, select=colnames(subtesting)[-which(na_count &gt; 0)])
-testcleaned &lt;- subset(testcleaned, select=colnames(testcleaned)[-c(1:7,NZV)])
-predictions &lt;- predict(modelFit, testcleaned)
-
+<pre class="r"><code>##compare predictions with actual values in the test set.
 confMatrix &lt;- confusionMatrix(testcleaned$classe, predict(modelFit, testcleaned))
 confMatrix$table</code></pre>
 <pre><code>##           Reference
 ## Prediction    A    B    C    D    E
-##          A 2223    4    4    0    1
-##          B   14 1496    8    0    0
-##          C    0    5 1353   10    0
-##          D    0    0   13 1273    0
+##          A 2222    5    4    0    1
+##          B   13 1497    8    0    0
+##          C    0    5 1354    9    0
+##          D    0    1   12 1273    0
 ##          E    0    1    4    7 1430</code></pre>
 <pre class="r"><code>confMatrix$overall</code></pre>
 <pre><code>##       Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull 
-##      0.9909508      0.9885537      0.9885992      0.9929259      0.2851134 
+##      0.9910783      0.9887152      0.9887412      0.9930386      0.2848585 
 ## AccuracyPValue  McnemarPValue 
 ##      0.0000000            NaN</code></pre>
 </div>

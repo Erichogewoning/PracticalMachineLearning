@@ -78,9 +78,14 @@ traincleaned <- subset(traincleaned, select=colnames(traincleaned)[-c(1:7,NZV)])
 At this point we decide to prepare our data for a random forest model. Random forest does not require normalized data, so we do not apply centering and scaling. The random forest will use **cross-validation** by growing trees on various samples of the training data and combining their predictions.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
+##train the model
 modelFit <- train(traincleaned$classe ~ . , method="rf", data=traincleaned)
+
+#from the test set, remove the same columns as from the training set
 testcleaned <- subset(subtesting, select=colnames(subtesting)[-which(na_count > 0)])
 testcleaned <- subset(testcleaned, select=colnames(testcleaned)[-c(1:7,NZV)])
+
+##apply the model to the cleaned test set to create predictions.
 predictions <- predict(modelFit, testcleaned)
 ```
 
@@ -92,11 +97,8 @@ Predictions are done on the remaining 40% of the data set and the predictions ar
 The result is an accuracy of 99.1 %. (The out-of-sample error rate is 0.9% )
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
-modelFit <- train(traincleaned$classe ~ . , method="rf", data=traincleaned)
-testcleaned <- subset(subtesting, select=colnames(subtesting)[-which(na_count > 0)])
-testcleaned <- subset(testcleaned, select=colnames(testcleaned)[-c(1:7,NZV)])
-predictions <- predict(modelFit, testcleaned)
 
+##compare predictions with actual values in the test set.
 confMatrix <- confusionMatrix(testcleaned$classe, predict(modelFit, testcleaned))
 confMatrix$table
 confMatrix$overall

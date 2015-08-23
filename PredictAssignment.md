@@ -94,9 +94,14 @@ At this point we decide to prepare our data for a random forest model. Random fo
 
 
 ```r
+##train the model
 modelFit <- train(traincleaned$classe ~ . , method="rf", data=traincleaned)
+
+#from the test set, remove the same columns as from the training set
 testcleaned <- subset(subtesting, select=colnames(subtesting)[-which(na_count > 0)])
 testcleaned <- subset(testcleaned, select=colnames(testcleaned)[-c(1:7,NZV)])
+
+##apply the model to the cleaned test set to create predictions.
 predictions <- predict(modelFit, testcleaned)
 ```
 
@@ -109,11 +114,7 @@ The result is an accuracy of 99.1 %. (The out-of-sample error rate is 0.9% )
 
 
 ```r
-modelFit <- train(traincleaned$classe ~ . , method="rf", data=traincleaned)
-testcleaned <- subset(subtesting, select=colnames(subtesting)[-which(na_count > 0)])
-testcleaned <- subset(testcleaned, select=colnames(testcleaned)[-c(1:7,NZV)])
-predictions <- predict(modelFit, testcleaned)
-
+##compare predictions with actual values in the test set.
 confMatrix <- confusionMatrix(testcleaned$classe, predict(modelFit, testcleaned))
 confMatrix$table
 ```
@@ -121,10 +122,10 @@ confMatrix$table
 ```
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 2223    4    4    0    1
-##          B   14 1496    8    0    0
-##          C    0    5 1353   10    0
-##          D    0    0   13 1273    0
+##          A 2222    5    4    0    1
+##          B   13 1497    8    0    0
+##          C    0    5 1354    9    0
+##          D    0    1   12 1273    0
 ##          E    0    1    4    7 1430
 ```
 
@@ -134,7 +135,7 @@ confMatrix$overall
 
 ```
 ##       Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull 
-##      0.9909508      0.9885537      0.9885992      0.9929259      0.2851134 
+##      0.9910783      0.9887152      0.9887412      0.9930386      0.2848585 
 ## AccuracyPValue  McnemarPValue 
 ##      0.0000000            NaN
 ```
